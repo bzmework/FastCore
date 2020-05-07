@@ -1,0 +1,28 @@
+﻿    /*
+    关于Interlocked.CompareExchange函数的说明：
+
+    int a, b, c, d;
+
+    a = 100; b = 10; c = 1;
+    d = Interlocked.CompareExchange(ref a, b, c); // 输出：d = 100, a = 100 
+
+    a = 100; b = 200; c = 100;
+    d = Interlocked.CompareExchange(ref a, b, c); // 输出：d = 100, a = 200 
+
+    // 解释：
+    // int d = Interlocked.CompareExchange(ref a, b, c);
+    // 比较 a和c，
+    // 如果 a==c 则用b替换a
+    // 如果 a<>c 什么都不做
+    // d的值始终等于a被替换前的值
+    // 伪码:
+    int Interlocked.CompareExchange(ref a, b, c)
+    {
+        d = a;
+        if(a == c)
+        {
+            a = b;
+        }
+        return d;
+    }
+    */

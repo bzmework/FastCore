@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1716: 标识符不应与关键字匹配
+dotnet_diagnostic.CA1716.severity = none

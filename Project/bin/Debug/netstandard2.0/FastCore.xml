@@ -1,0 +1,3128 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastCore</name>
+    </assembly>
+    <members>
+        <member name="T:FastCore.Cache.Cache">
+            <summary>
+            缓存。采用内存和Redis缓存数据。
+            </summary>
+            <remarks>
+            缓存逻辑是：优先使用Redis缓存数据，如果Redis不可用则进行降级采用内存缓存数据，这样就可以保证缓存总是有效。
+            </remarks>
+        </member>
+        <member name="F:FastCore.Cache.Cache._cancelToken">
+            <summary>取消清理令牌</summary>
+        </member>
+        <member name="F:FastCore.Cache.Cache._memCache">
+            <summary>n内存缓存</summary>
+        </member>
+        <member name="F:FastCore.Cache.Cache._redisCache">
+            <summary>Redis缓存项目</summary>
+        </member>
+        <member name="F:FastCore.Cache.Cache._redisValid">
+            <summary>Redis缓存是否可用</summary>
+        </member>
+        <member name="M:FastCore.Cache.Cache.Config(FastCore.Redis.RedisOption)">
+            <summary>
+            配置缓存 
+            </summary>
+            <param name="option">Redis选项配置</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.Cache.TrySet``1(System.String,``0,System.Int32)">
+            <summary>尝试设置缓存项目</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="ttl">项目的存活时间，以秒为单位。默认-1表示永不过期。</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.Cache.TryGet``1(System.String,``0@)">
+            <summary>尝试获取缓存项</summary>
+            <param name="key">键</param>
+            <param name="value">返回值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.Cache.Dispose">
+            <summary>
+            销毁缓存
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.Cache.CreateMonitorTask">
+            <summary>创建监控任务</summary>
+        </member>
+        <member name="T:FastCore.Cache.DataCache`1">
+            <summary>
+            高速数据缓存，用于缓存高频使用的内存数据流等。
+            </summary>
+            <remarks>
+            只能缓存实现了IDisposable接口的对象，以保证缓存池销毁的时候能成功销毁被缓存的对象。
+            </remarks>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1._errMsg">
+            <summary>错误消息</summary>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1._actSlots">
+            <summary>活动插槽</summary>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1._bakStores">
+            <summary>后备存储</summary>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1._useItems">
+            <summary>当前使用中项目</summary>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1._actItem">
+            <summary>当前活动的项目</summary>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.#ctor">
+            <summary>
+            实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)。
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:FastCore.Cache.DataCache`1.Message">
+            <summary>
+            错误消息
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.Get">
+            <summary>
+            取出一个空闲的对象
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.DataCache`1.Put(`0)">
+            <summary>将对象归还回缓存</summary>
+            <param name="value"></param>
+        </member>
+        <member name="T:FastCore.Cache.DataCache`1.CacheItem">
+            <summary>
+            缓存项目，与ObjectCache不一样，这里用结构实现CacheItem，
+            因为结构存储在堆栈上，可以避免被垃圾回收器清理掉。
+            </summary>
+        </member>
+        <member name="F:FastCore.Cache.DataCache`1.CacheItem.Value">
+            <summary>
+            缓存值
+            </summary>
+        </member>
+        <member name="T:FastCore.Cache.CacheClearPolicy">
+            <summary>
+            缓存清理策略
+            </summary>
+        </member>
+        <member name="F:FastCore.Cache.CacheClearPolicy.ClearAll">
+            <summary>
+            清理所有可能的缓存项目
+            </summary>
+        </member>
+        <member name="F:FastCore.Cache.CacheClearPolicy.OnlyExpired">
+            <summary>
+            仅清理已经过期的缓存项目
+            </summary>
+        </member>
+        <member name="T:FastCore.Cache.MemoryCache">
+            <summary>
+            高速内存缓存
+            </summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._cache">
+            <summary>并行缓存字典，适用于多线程高并发</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._jsonSerialize">
+            <summary>是否启用Json序列化</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._autoClearCache">
+            <summary>是否自动清理缓存</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._clearInterval">
+            <summary>清理间隔时间，以秒为单位，默认60秒清理一次</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._clearCapacity">
+            <summary>清理容量，默认为0表示每次都要清理整个缓存中的过期项目</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._cancelToken">
+            <summary>取消清理令牌</summary>
+        </member>
+        <member name="F:FastCore.Cache.MemoryCache._count">
+            <summary>缓存项目数量</summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.#ctor(System.Boolean,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            实例化缓存
+            </summary>
+            <param name="autoClearCache">是否启用自动清理缓存，默认开启</param>
+            <param name="clearInterval">清理间隔时间，以秒为单位，默认60秒清理一次</param>
+            <param name="clearCapacity">清理容量，默认为0表示每次都要清理整个缓存中的过期项目</param>
+            <param name="jsonSerialize">是否进行Json序列化</param>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)。
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Name">
+            <summary>
+            缓存名称
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Policy">
+            <summary>
+            缓存清理策略
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Interval">
+            <summary>清理间隔，以秒为单位，默认60秒，表示每隔60秒清理一次缓存</summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Capacity">
+            <summary>
+            清理容量，默认为0表示每次都要清理整个缓存中的过期项目，>0表示每次找出指定容量的过期缓存进行清理(能减少扫描整个缓存的频率)。
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Count">
+            <summary>返回缓存项目数量</summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.Keys">
+            <summary>返回所有键。实际返回所有Key的集合，数据量较大时注意性能</summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.JsonSerialize">
+            <summary>
+            是否启用Json序列化，默认开启。
+            当启用Json序列化时对性能会有所损耗，经过测试对性能影响不是很大。
+            开启Json序列化用来缓存对象特别有用，由于序列化会把对象转换成字符串存储，因此即使被缓存对象被销毁了也能找回。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.ContainsKey(System.String)">
+            <summary>是否包含缓存项</summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Set``1(System.String,``0,System.Int32,System.Boolean)">
+            <summary>设置缓存项目</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="ttl">项目的存活时间，以秒为单位。默认-1表示永不过期。</param>
+            <param name="replace">当项目已经存在时是否替换。如果设置成false，则已存在时不替换，此时可用于锁争夺</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Update``1(System.String,``0)">
+            <summary>修改缓存项目</summary>
+            <typeparam name="T">值类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Remove(System.String[])">
+            <summary>删除缓存项目，支持批量删除</summary>
+            <param name="keys">键集合</param>
+            <returns>实际删除的缓存项目个数</returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Get``1(System.String)">
+            <summary>获取缓存项，不存在时返回默认值</summary>
+            <param name="key">键</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.Clear">
+            <summary>
+            清空所有缓存项目
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.SetTTL(System.String,System.Int32)">
+            <summary>设置缓存项目的存活时间</summary>
+            <param name="key">键</param>
+            <param name="ttl">存活时间(Time to live)，以秒为单位，-1表示永不过期</param>
+            <returns>设置是否成功</returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.GetTTL(System.String)">
+            <summary>获取缓存项目剩余的存活时间(Time to live)，以秒为单位，-1表示永不过期</summary>
+            <param name="key">键</param>
+            <returns>缓存项目不存在或已经过期时返回0</returns>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.CreateClearTask">
+            <summary>创建清理缓存任务</summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.ClearCacheItem(FastCore.Cache.CacheClearPolicy)">
+            <summary>
+            清理缓存项目。
+            </summary>
+        </member>
+        <member name="T:FastCore.Cache.MemoryCache.CacheItem">
+            <summary>
+            缓存项目
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.CacheItem.Value">
+            <summary>
+            项目值
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.CacheItem.TTL">
+            <summary>
+            存活时间(Time To Live)，以秒为单位，-1表示永不过期
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.CacheItem.Expire">
+            <summary>
+            到期时间(Expire Time)，以纳秒为单位
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.MemoryCache.CacheItem.Alive">
+            <summary>
+            活跃时间(Alive Time)，以纳秒为单位
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.CacheItem.#ctor(System.Object,System.Int32)">
+            <summary>构造缓存项目</summary>
+            <param name="value"></param>
+            <param name="ttl"></param>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.CacheItem.Set(System.Object,System.Int32)">
+            <summary>设置项目的值和存活时间</summary>
+            <param name="value"></param>
+            <param name="ttl"></param>
+        </member>
+        <member name="M:FastCore.Cache.MemoryCache.CacheItem.Set(System.Int32)">
+            <summary>设置项目的存活时间</summary>
+            <param name="ttl"></param>
+        </member>
+        <member name="T:FastCore.Cache.MessageCache`1">
+            <summary>
+            消息缓存，用于缓存消息数据、Socket连接数据等
+            </summary>
+            <remarks>
+            由于系统利用了任务排队+线程池并行处理消息，因此处理上百万消息都没有问题，响应速度取决于[CPU数量]和['消息处理函数'处理消息的速度]。
+            </remarks>
+        </member>
+        <member name="F:FastCore.Cache.MessageCache`1._maxCount">
+            <summary>最大数量(最高水位线)。默认1000，0表示无上限</summary>
+        </member>
+        <member name="F:FastCore.Cache.MessageCache`1._cancelToken">
+            <summary>取消清理令牌</summary>
+        </member>
+        <member name="F:FastCore.Cache.MessageCache`1._enqueueItems">
+            <summary>排队项目</summary>
+        </member>
+        <member name="F:FastCore.Cache.MessageCache`1._messageAction">
+            <summary>消息处理</summary>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.#ctor(System.Action{`0},System.Int32)">
+            <summary>
+            实例化
+            </summary>
+            <param name="maxCount">最大消息数量，0表示无上限</param>
+            <param name="messageAction">消息处理函数</param>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)。
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:FastCore.Cache.MessageCache`1.MaxCount">
+            <summary>
+            最大消息数量。默认1000，0表示无上限
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.Enqueue(`0)">
+            <summary>消息排队</summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.CreateProcessTask">
+            <summary>创建消息处理任务</summary>
+        </member>
+        <member name="M:FastCore.Cache.MessageCache`1.ProcessMessage(`0)">
+            <summary>
+            处理消息
+            </summary>
+            <param name="value">消息</param>
+        </member>
+        <member name="T:FastCore.Cache.ObjectCache`1">
+            <summary>
+            对象缓存，用于缓存数据库连接、网络连接等。
+            </summary>
+            <remarks>
+            只能缓存实现了IDisposable接口的对象，以保证缓存池销毁的时候能成功销毁被缓存的对象。
+            </remarks>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._errMsg">
+            <summary>错误消息</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._freeCount">
+            <summary>空闲对象数量(最低水位线以上)</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._busyCount">
+            <summary>繁忙对象数量</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._maxCount">
+            <summary>最大可缓存对象数量(最高水位线)。默认163，0表示无上限</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._minCount">
+            <summary>最小可缓存对象数量(最低水位线)。默认3</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._Interval">
+            <summary>缓存清理间隔，以秒为单位。最低水位线之上的资源超过空闲时间时被自动清理，默认30s, 0表示永不清理</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._cancelToken">
+            <summary>取消清理令牌</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._baseItems">
+            <summary>基础缓存项目(最常使用的项目用堆栈缓存, 后进先出)</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._freeItems">
+            <summary>空闲缓存项目(空闲使用的项目用队列缓存, 先进先出)</summary>
+        </member>
+        <member name="F:FastCore.Cache.ObjectCache`1._busyItems">
+            <summary>繁忙缓存项目</summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.#ctor">
+            <summary>
+            实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)。
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.FreeCount">
+            <summary>
+            空闲对象数量
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.BusyCount">
+            <summary>
+            繁忙对象数量
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.MaxCount">
+            <summary>
+            最大可缓存对象数量。默认100，0表示无上限
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.MinCount">
+            <summary>
+            最小可缓存对象数量(最低水位线)。默认3
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.Interval">
+            <summary>
+            缓存清理间隔，以秒为单位，默认30s, 0表示永不清理。
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.Message">
+            <summary>
+            错误消息
+            </summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.Get(System.Int32)">
+            <summary>
+            取出一个空闲的对象
+            </summary>
+            <param name="ttl">存活时间，以秒为单位，默认10秒(超过以后还不归还，缓存清理时会被自动回收)，-1表示一直占用(缓存清理时不进行自动回收)</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.Put(`0)">
+            <summary>将对象归还回缓存</summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.CreateClearTask">
+            <summary>创建清理缓存任务</summary>
+        </member>
+        <member name="M:FastCore.Cache.ObjectCache`1.ClearCacheItem">
+            <summary>
+            清理缓存项目。
+            </summary>
+        </member>
+        <member name="T:FastCore.Cache.ObjectCache`1.CacheItem">
+            <summary>
+            缓存项目
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.CacheItem.Value">
+            <summary>
+            缓存值
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.CacheItem.TTL">
+            <summary>
+            存活时间，以秒为单位，默认10秒，-1表示一直占用
+            </summary>
+        </member>
+        <member name="P:FastCore.Cache.ObjectCache`1.CacheItem.LastTime">
+            <summary>
+            最近访问时间
+            </summary>
+        </member>
+        <member name="T:FastCore.HashAlg.Hash">
+            <summary>
+            Hash算法
+            </summary>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Md5(System.Byte[])">
+            <summary>
+            Md5 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Md5(System.String)">
+            <summary>
+            Md5 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha1(System.Byte[])">
+            <summary>
+            Sha1 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha1(System.String)">
+            <summary>
+            Sha1 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha256(System.Byte[])">
+            <summary>
+            Sha256 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha256(System.String)">
+            <summary>
+            Sha256 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha384(System.Byte[])">
+            <summary>
+            Sha384 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha384(System.String)">
+            <summary>
+            Sha384 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha512(System.Byte[])">
+            <summary>
+            Sha512 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Sha512(System.String)">
+            <summary>
+            Sha512 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha1(System.Byte[],System.Byte[])">
+            <summary>
+            Hmac Sha1 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-256）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha1(System.String,System.String)">
+            <summary>
+            Hmac Sha1 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-256）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha256(System.Byte[],System.Byte[])">
+            <summary>
+            Hmac Sha256 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-256）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha256(System.String,System.String)">
+            <summary>
+            Hmac Sha256 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-256）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha384(System.Byte[],System.Byte[])">
+            <summary>
+            Hmac Sha384 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为128个字节。如果键的长度超过128个字节，将对其进行哈希运算（使用 SHA-384）以派生出一个128字节的密钥。如果少于128个字节，就填充到128个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha384(System.String,System.String)">
+            <summary>
+            Hmac Sha384 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为128个字节。如果键的长度超过128个字节，将对其进行哈希运算（使用 SHA-384）以派生出一个128字节的密钥。如果少于128个字节，就填充到128个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha512(System.Byte[],System.Byte[])">
+            <summary>
+            Hmac Sha512 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为128个字节。如果键的长度超过128个字节，将对其进行哈希运算（使用 SHA-384）以派生出一个128字节的密钥。如果少于128个字节，就填充到128个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HSha512(System.String,System.String)">
+            <summary>
+            Hmac Sha512 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为128个字节。如果键的长度超过128个字节，将对其进行哈希运算（使用 SHA-384）以派生出一个128字节的密钥。如果少于128个字节，就填充到128个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HMd5(System.Byte[],System.Byte[])">
+            <summary>
+            Hmac Md5 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-1）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.HMd5(System.String,System.String)">
+            <summary>
+            Hmac Md5 哈希算法
+            </summary>
+            <param name="key">密钥。该密钥可以是任意长度。但是建议的大小为64个字节。如果键的长度超过64个字节，将对其进行哈希运算（使用 SHA-1）以派生出一个64字节的密钥。如果少于64个字节，就填充到64个字节。</param>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.Hash.Mur3(System.String)">
+            <summary>
+            MurmurHash3 哈希算法
+            </summary>
+            <param name="data">数据。要进行哈希的数据</param>
+            <returns>哈希代码</returns>
+        </member>
+        <member name="T:FastCore.HashAlg.MurmurHash3">
+            <summary>
+            MurmurHash3是谷歌采用的哈希算法，用于搜索引擎中为网址生成唯一的散列值。
+            <para>
+                MurmurHash3 x64 128-bit variant.
+                https://github.com/judwhite/Grassfed.MurmurHash3/blob/master/Grassfed.MurmurHash3/MurmurHash3.cs
+            </para>
+            <para>
+                Project home: https://github.com/judwhite/Grassfed.MurmurHash3
+            </para>
+            <para>
+                See https://github.com/aappleby/smhasher/wiki/MurmurHash3 for more information. Port of 
+                https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash3.cpp#L255
+            </para>
+            </summary>
+            <remarks>
+            MurmurHash是高运算性能，低碰撞率的哈希算法，适用于已知长度的、长度比较长的字符串，
+            由Austin Appleby创建于2008年，现已应用到Hadoop、libstdc++、nginx、libmemcached、Redis等开源系统。
+            2011年Appleby被Google雇佣，随后Google推出其变种的CityHash算法。
+            官方网站：https://sites.google.com/site/murmurhash/
+            CityHash: https://google-opensource.blogspot.com/2011/04/introducing-cityhash.html
+            MurmurHash算法，自称超级快的hash算法，是FNV的4-5倍。官方数据如下：
+            OneAtATime      – 354.163715  mb/sec
+            FNV             – 443.668038  mb/sec
+            SuperFastHash   – 985.335173  mb/sec
+            lookup3         – 988.080652  mb/sec
+            MurmurHash 1.0  – 1363.293480 mb/sec
+            MurmurHash 2.0  – 2056.885653 mb/sec
+            </remarks>
+        </member>
+        <member name="P:FastCore.HashAlg.MurmurHash3.HashSize">
+            <summary>Gets the size, in bits, of the computed hash code.</summary>
+            <returns>The size, in bits, of the computed hash code.</returns>
+        </member>
+        <member name="M:FastCore.HashAlg.MurmurHash3.ComputeHash(System.Byte[])">
+            <summary>Computes the hash value for the specified byte array.</summary>
+            <param name="buffer">The input to compute the hash code for.</param>
+            <returns>The computed hash code.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="buffer" /> is null.</exception>
+        </member>
+        <member name="M:FastCore.HashAlg.MurmurHash3.ComputeHash(System.String)">
+            <summary>Computes the hash value for the specified string.</summary>
+            <param name="text">The input to compute the hash code for.</param>
+            <returns>The computed hash code.</returns>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="text" /> is null.</exception>
+        </member>
+        <member name="M:FastCore.HashAlg.MurmurHash3.ComputeHash(System.Byte[],System.Int32,System.Int32)">
+            <summary>Computes the hash value for the specified region of the specified byte array.</summary>
+            <param name="buffer">The input to compute the hash code for.</param>
+            <param name="offset">The offset into the byte array from which to begin using data.</param>
+            <param name="count">The number of bytes in the array to use as data.</param>
+            <returns>The computed hash code.</returns>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="count" /> is an invalid value.-or-<paramref name="buffer" /> length is invalid.</exception>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="buffer" /> is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="offset" /> is out of range. This parameter requires a non-negative number.</exception>
+        </member>
+        <member name="T:FastCore.Json.Json">
+            <summary>
+            Json序列/反序列化
+            </summary>
+            <remarks>
+            改写自：https://github.com/rpgmaker/NetJSON
+            NetJSON的速度非常快，优于：Newtonsoft.Json, System.Text.Json
+            </remarks>
+        </member>
+        <member name="P:FastCore.Json.Json.ShareAssembly">
+            <summary>
+            Flag to determine whether to store all generate serializer for types in a single assembly
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.Json.CanSerialize">
+            <summary>
+            Delegate to override what member can get serialized
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.Json.SerializeAs">
+            <summary>
+            Delegate to override what name to use for members when serialized
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize(System.Type,System.Object)">
+            <summary>
+            Serialize value using the specified type
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize(System.Type,System.Object,FastCore.Json.JsonSettings)">
+            <summary>
+            Serialize value using the specified type and settings
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <param name="settings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize(System.Object)">
+            <summary>
+            Serialize value using the underlying type of specified value
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize(System.Type,System.String)">
+            <summary>
+            Deserialize json to specified type
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize(System.Type,System.String,FastCore.Json.JsonSettings)">
+            <summary>
+            Deserialize json to specified type and settings
+            </summary>
+            <param name="type"></param>
+            <param name="value"></param>
+            <param name="settings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.RegisterTypeSerializer``1(System.Func{``0,System.String})">
+            <summary>
+            Register serializer primitive method for <typeparamref name="T"/> when object type is encountered
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="serializeFunc"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.RegisterCustomTypeSerializer``1(System.Action{``0,System.Text.StringBuilder,FastCore.Json.JsonSettings})">
+            <summary>
+            Register serializer for any custom user defined type with exclusion to enums for <typeparamref name="T"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="serializeFunc"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.RegisterCustomTypeDeserializer``1(FastCore.Json.Json.DeserializeCustomTypeDelegate{``0})">
+            <summary>
+            Register deserializer for any custom user defined type with exclusion to enums for <typeparamref name="T"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="deserializeFunc"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize``1(``0)">
+            <summary>
+            Serialize <typeparamref name="T"/> to json
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize``1(``0,System.IO.TextWriter)">
+            <summary>
+            Serialize <typeparamref name="T"/> to specified writer
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="value"></param>
+            <param name="writer"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize``1(System.String)">
+            <summary>
+            Deserialize json to <typeparamref name="T"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="json"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize``1(System.IO.TextReader)">
+            <summary>
+            Deserialize reader content to <typeparamref name="T"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize``1(``0,FastCore.Json.JsonSettings)">
+            <summary>
+            Serialize specified <typeparamref name="T"/> using settings
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="value"></param>
+            <param name="settings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Serialize``1(``0,System.IO.TextWriter,FastCore.Json.JsonSettings)">
+            <summary>
+            Serialize specified <typeparamref name="T"/> to writer using settings
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="value"></param>
+            <param name="writer"></param>
+            <param name="settings"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.SerializeObject(System.Object,FastCore.Json.JsonSettings)">
+            <summary>
+            Serialize value using underlying object type
+            </summary>
+            <param name="value">Object value</param>
+            <param name="settings">Settings</param>
+            <returns>String</returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize``1(System.String,FastCore.Json.JsonSettings)">
+            <summary>
+            Deserialize json to <typeparamref name="T"/> using specified settings
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="json"></param>
+            <param name="settings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.Deserialize``1(System.IO.TextReader,FastCore.Json.JsonSettings)">
+            <summary>
+            Deserialize content of reader to <typeparamref name="T"/> using specified settings
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="reader"></param>
+            <param name="settings"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.DeserializeObject(System.String)">
+            <summary>
+            Deserialize json into Dictionary[string, object]
+            </summary>
+            <param name="json"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.Json.GenerateUpdateCurrent(System.Reflection.Emit.ILGenerator,System.Reflection.Emit.LocalBuilder,System.Reflection.Emit.LocalBuilder)">
+            <summary>
+            current = *(ptr + index);
+            </summary>
+            <param name="il"></param>
+            <param name="current"></param>
+            <param name="ptr"></param>
+        </member>
+        <member name="M:FastCore.Json.Json.IncrementIndexRef(System.Reflection.Emit.ILGenerator,System.Int32)">
+            <summary>
+            index++
+            </summary>
+            <param name="il"></param>
+        </member>
+        <member name="T:FastCore.Json.JsonPropertyAttribute">
+            <summary>
+            属性重命名字段/属性名，以便用于序列化和反序列化
+            Attribute for renaming field/property name to use for serialization and deserialization
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonPropertyAttribute.Name">
+            <summary>
+            Name of property/field
+            属性/字段的名称
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonPropertyAttribute.#ctor(System.String)">
+            <summary>
+            默认构造函数
+            Default constructor
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="T:FastCore.Json.JsonKnownTypeAttribute">
+            <summary>
+            Attribute for configuration of Class that requires type information for serialization and deserialization
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonKnownTypeAttribute.Type">
+            <summary>
+            Type
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonKnownTypeAttribute.#ctor(System.Type)">
+            <summary>
+            Default constructor
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="T:FastCore.Json.JsonInvalidException">
+            <summary>
+            Exception thrown for invalid json string
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonTypeMismatchException">
+            <summary>
+            Exception thrown for invalid json string
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonInvalidPropertyException">
+            <summary>
+            Exception thrown for invalid json property attribute
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonInvalidPropertyException.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonInvalidAssemblyGeneration">
+            <summary>
+            Exception thrown for invalid assembly generation when adding all assembly into a specified assembly file
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonInvalidAssemblyGeneration.#ctor(System.String)">
+            <summary>
+            Default constructor
+            </summary>
+            <param name="asmName"></param>
+        </member>
+        <member name="T:FastCore.Json.JsonStringReader">
+            <summary>
+            Json字符串阅读器
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonStringReader.#ctor">
+            <summary>
+            默认构造函数
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonStringReader.Next">
+            <summary>
+            下一个字符
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.Json.JsonDateFormat">
+            <summary>
+            Option for determining date formatting
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonDateFormat.Default">
+            <summary>
+            Default /Date(...)/
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonDateFormat.ISO">
+            <summary>
+            ISO Format
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonDateFormat.EpochTime">
+            <summary>
+            Unix Epoch Milliseconds
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonDateFormat.JsonNetISO">
+            <summary>
+            JSON.NET Format for backward compatibility
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonDateFormat.JavascriptSerializer">
+            <summary>
+            .NET System.Web.Script.Serialization.JavaScriptSerializer backward compatibility
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonTimeZoneFormat">
+            <summary>
+            Option for determining timezone formatting
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonTimeZoneFormat.Unspecified">
+            <summary>
+            Default unspecified
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonTimeZoneFormat.Utc">
+            <summary>
+            Utc
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonTimeZoneFormat.Local">
+            <summary>
+            Local time
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonQuote">
+            <summary>
+            Option for determine what type of quote to use for serialization and deserialization
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonQuote.Default">
+            <summary>
+            Default: double quote
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonQuote.Double">
+            <summary>
+            Use double quote
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonQuote.Single">
+            <summary>
+            Use single quote
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonFormat">
+            <summary>
+            Options for controlling serialize json format
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonFormat.Default">
+            <summary>
+            Default
+            </summary>
+        </member>
+        <member name="F:FastCore.Json.JsonFormat.Prettify">
+            <summary>
+            Prettify string
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.JsonSettings">
+            <summary>
+            Json设置
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.DateFormat">
+            <summary>
+            日期格式，默认：Default
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.DateStringFormat">
+            <summary>
+            提供日期格式化时使用的字符串格式
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.HasDateStringFormat">
+            <summary>
+            是否有日期字符串格式
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.TimeZoneFormat">
+            <summary>
+            时区格式，默认：Unspecified
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.Format">
+            <summary>
+            输出json的格式，默认：Default
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.UseEnumString">
+            <summary>
+            Enum应该序列化为字符串(string)还是整型值(int)。默认值: True
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.SkipDefaultValue">
+            <summary>
+            是否应该跳过默认值，默认: True
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.CaseSensitive">
+            <summary>
+            属性/字段名是否区分大小写，默认: True
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.QuoteType">
+            <summary>
+            引用类型(Quote Type), 默认: 双引号
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.QuoteChar">
+            <summary>
+            引用字符
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.QuoteCharString">
+            <summary>
+            引用字符串
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.HasOverrideQuoteChar">
+            <summary>
+            是否重写引用字符
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.UseStringOptimization">
+            <summary>
+            是否使用字符串优化
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.IncludeTypeInformation">
+            <summary>
+             启用包含用于序列化和反序列化的类型信息 
+            </summary>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.CamelCase">
+            <summary>
+             为属性/字段名启用camelCasing 
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonSettings.#ctor">
+            <summary>
+            默认构造函数
+            </summary>
+        </member>
+        <member name="M:FastCore.Json.JsonSettings.Clone">
+            <summary>
+            Clone settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:FastCore.Json.JsonSettings.CurrentSettings">
+            <summary>
+            Returns current JsonSettings that correspond to old use of settings
+            </summary>
+        </member>
+        <member name="T:FastCore.Json.QuickConvert">
+            <summary>
+            数值转换函数，性能大大优于System.Convert
+            </summary>
+            <remarks>
+            代码来源：https://github.com/bzmework/TLib
+            </remarks>
+        </member>
+        <member name="M:FastCore.Json.QuickConvert.C2Str(System.Int32)">
+            <summary>
+            转换int类型值为字符串
+            </summary>
+            <param name="val">要转换的int类型值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.QuickConvert.C2Str(System.UInt32)">
+            <summary>
+            转换unsigned int类型值为字符串
+            </summary>
+            <param name="val">要转换的unsigned int类型值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.QuickConvert.C2Str(System.Int64)">
+            <summary>
+            转换long类型值为字符串
+            </summary>
+            <param name="val">要转换的long类型值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.QuickConvert.C2Str(System.UInt64)">
+            <summary>
+            转换unsigned long类型值为字符串
+            </summary>
+            <param name="val">要转换的unsigned long类型值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Json.QuickConvert.C2Dbl(System.String)">
+            <summary>
+            转换字符串为double类型值
+            </summary>
+            <remarks>
+            c2dbl()会扫描参数str字符串，跳过前面的空格字符，直到遇上数字或正负符号才开始做转换，
+            到出现非数字或字符串结束时('\0')才结束转换，并将结果返回。
+            参数str字符串可包含正负号、小数点或E(e)来表示指数部分。如123.456或123e-2或123.456e2。
+            </remarks>
+            <param name="str">要转换的字符串</param>
+            <returns>返回double值</returns>
+        </member>
+        <member name="T:FastCore.Jwt.JwtBase64Url">
+            <summary>
+            JwtBase64Url编码/解码
+            </summary>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBase64Url.Encode(System.Byte[])">
+            <summary>
+            编码
+            </summary>
+            <param name="input">待编码的数据</param>
+            <exception cref="T:System.ArgumentNullException" />
+            <exception cref="T:System.ArgumentOutOfRangeException" />
+            <returns>编码后的字符串</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBase64Url.Decode(System.String)">
+            <summary>
+            解码
+            </summary>
+            <param name="input">待编码的数据</param>
+            <exception cref="T:System.ArgumentException" />
+            <exception cref="T:System.FormatException" />
+            <returns>解码编码后的数据</returns>
+        </member>
+        <member name="T:FastCore.Jwt.JwtBuilder">
+            <summary>
+            JWT令牌构造器
+            </summary>
+            <remarks>构造令牌和解码令牌</remarks>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.GenerateKey(System.String)">
+            <summary>
+            生成一个密钥
+            </summary>
+            <param name="password">明文密码，为空则随机生成密钥</param>
+            <returns>返回Base64编码的密钥，必须保存好不要丢失</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.WithAlgorithm(FastCore.Jwt.JwtSecurityAlgorithms)">
+            <summary>
+            设置JWT采用的算法
+            </summary>
+            <param name="algorithm">算法，参见JwtSecurityAlgorithms</param>
+            <returns>返回当前构造器实例</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.WithSecret(System.String)">
+            <summary>
+            设置JWT签名密钥
+            </summary>
+            <param name="secret">密钥</param>
+            <returns>返回当前构造器实例</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.WithAes(System.Boolean)">
+            <summary>
+            使用Aes对JWT令牌进行加密
+            </summary>
+            <param name="sign">签名</param>
+            <returns>返回当前构造器实例</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.AddClaim(FastCore.Jwt.JwtClaimNames,System.Object)">
+            <summary>
+            增加Claim
+            </summary>
+            <param name="name">Claim名称</param>
+            <param name="value">Claim值</param>
+            <exception cref="T:System.ArgumentNullException" />
+            <returns>返回当前构造器实例</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.AddClaim(System.String,System.Object)">
+            <summary>
+            增加Claim
+            </summary>
+            <param name="name">Claim名称，名称可以是自定义名称，也可以是已注册名称，参见JwtClaimNames</param>
+            <param name="value">Claim值</param>
+            <exception cref="T:System.ArgumentNullException" />
+            <returns>返回当前构造器实例</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.Build">
+            <summary>
+            生成JWT令牌
+            </summary>
+            <returns>返回生成的JWT令牌</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.Decode(System.String,System.Boolean)">
+            <summary>
+            解码JWT令牌
+            </summary>
+            <param name="token">JWT令牌</param>
+            <param name="verifySignature">验证签名</param>
+            <exception cref="T:System.ArgumentException" />
+            <exception cref="T:System.ArgumentOutOfRangeException" />
+            <returns>返回负载字典</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.Decode``1(System.String,System.Boolean)">
+            <summary>
+            解码JWT令牌
+            </summary>
+            <param name="token">JWT令牌</param>
+            <param name="verifySignature">验证签名</param>
+            <returns>返回指定的对象</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.Parse(System.String,FastCore.Jwt.JwtClaimNames)">
+            <summary>
+            解析JWT令牌
+            </summary>
+            <param name="token">JWT令牌</param>
+            <param name="claim">Claim名称</param>
+            <returns>返回指定的Claim值，解析失败返回null</returns>
+        </member>
+        <member name="M:FastCore.Jwt.JwtBuilder.Verify(System.String)">
+            <summary>
+            校验JWT令牌是否有效
+            </summary>
+            <param name="token">JWT令牌</param>
+            <returns>有效返回空字符串，无效返回错误</returns>
+        </member>
+        <member name="T:FastCore.Jwt.JwtClaimNames">
+            <summary>
+            来自不同来源的已注册claim名称清单
+            </summary>
+            <remarks>
+            http://tools.ietf.org/html/rfc7519#section-4
+            http://openid.net/specs/openid-connect-core-1_0.html#IDToken
+            </remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Issuer">
+            <summary>签发人，令牌由谁签发，例如某某公司或个人</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Subject">
+            <summary>主题，对令牌的简单描述</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Audience">
+            <summary>受众，令牌颁发给谁使用</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.ExpirationTime">
+            <summary>过期时间，令牌的过期时间。按照规范，应该设置成秒数</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.NotBefore">
+            <summary>生效时间，令牌的生效时间</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.IssuedAt">
+            <summary>签发时间，令牌的签发时间</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.JwtId">
+            <summary>编号，令牌的编号</summary>
+            <remarks>http://tools.ietf.org/html/rfc7519#section-4</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Email">
+            <summary>电子邮箱</summary>
+            <remarks>https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Website">
+            <summary>Web站点</summary>
+            <remarks>https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Address">
+            <summary>办公地址</summary>
+            <remarks>https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.PhoneNumber">
+            <summary>电话号码</summary>
+            <remarks>https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.AuthTime">
+            <summary>授权时间</summary>
+            <remarks>http://openid.net/specs/openid-connect-core-1_0.html#IDToken</remarks>
+        </member>
+        <member name="F:FastCore.Jwt.JwtClaimNames.Locale">
+            <summary>语言，例如：zh-CN, en-US</summary>
+            <remarks>https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims</remarks>
+        </member>
+        <member name="T:FastCore.Jwt.JwtEnumExtensions">
+            <summary>
+            JWT枚举扩展
+            </summary>
+        </member>
+        <member name="M:FastCore.Jwt.JwtEnumExtensions.ToStr(FastCore.Jwt.JwtSecurityAlgorithms)">
+            <summary>
+            获得JwtSecurityAlgorithms当前枚举值
+            </summary>
+        </member>
+        <member name="M:FastCore.Jwt.JwtEnumExtensions.ToStr(FastCore.Jwt.JwtClaimNames)">
+            <summary>
+            获得JwtClaimNames当前枚举值
+            </summary>
+        </member>
+        <member name="M:FastCore.Jwt.JwtEnumExtensions.GetDescription(System.Object)">
+            <summary>
+            获得描述特性
+            </summary>
+        </member>
+        <member name="T:FastCore.Jwt.JwtSecurityAlgorithms">
+            <summary>
+            JWT采用的安全算法
+            </summary>
+        </member>
+        <member name="F:FastCore.Jwt.JwtSecurityAlgorithms.HmacSha256">
+            <summary>HMAC SHA-256 散列算法</summary>
+        </member>
+        <member name="F:FastCore.Jwt.JwtSecurityAlgorithms.HmacSha384">
+            <summary>HMAC SHA-384 散列算法</summary>
+        </member>
+        <member name="F:FastCore.Jwt.JwtSecurityAlgorithms.HmacSha512">
+            <summary>HMAC SHA-512 散列算法</summary>
+        </member>
+        <member name="T:FastCore.LogTarget">
+            <summary>
+            日志输出目标
+            </summary>
+        </member>
+        <member name="F:FastCore.LogTarget.Console">
+            <summary>控制台</summary>
+        </member>
+        <member name="F:FastCore.LogTarget.Debug">
+            <summary>调试窗口</summary>
+        </member>
+        <member name="F:FastCore.LogTarget.Trace">
+            <summary>跟踪窗口</summary>
+        </member>
+        <member name="F:FastCore.LogTarget.File">
+            <summary>文件</summary>
+        </member>
+        <member name="F:FastCore.LogTarget.Email">
+            <summary>邮件</summary>
+        </member>
+        <member name="T:FastCore.Log">
+            <summary>
+            日志
+            </summary>
+        </member>
+        <member name="M:FastCore.Log.Configure(FastCore.LogTarget)">
+            <summary>
+            配置日志
+            </summary>
+            <param name="target">输出目标</param>
+        </member>
+        <member name="M:FastCore.Log.Debug(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Debug(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Info(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调信息日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Info(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Warn(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调警告日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Warn(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Error(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Error(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Fatal(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Log.Fatal(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="T:FastCore.LogConsole">
+            <summary>
+            日志(输出到控制台)
+            </summary>
+        </member>
+        <member name="M:FastCore.LogConsole.Debug(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Debug(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Info(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Info(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Warn(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Warn(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Error(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Error(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Fatal(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogConsole.Fatal(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="T:FastCore.LogDebug">
+            <summary>
+            日志(输出到调试窗口)
+            </summary>
+        </member>
+        <member name="M:FastCore.LogDebug.Debug(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Debug(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Info(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Info(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Warn(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Warn(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Error(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Error(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Fatal(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogDebug.Fatal(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="T:FastCore.LogTrace">
+            <summary>
+            日志(输出到跟踪窗口)
+            </summary>
+        </member>
+        <member name="M:FastCore.LogTrace.Debug(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Debug(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写调试日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Info(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Info(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写信息日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Warn(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Warn(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写警告日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Error(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Error(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写错误日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Fatal(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.LogTrace.Fatal(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            写致命日志
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="T:FastCore.Redis.Redis">
+            <summary>
+            Redis工厂，创建Redis客户端、集群等
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.Redis.Instance">
+            <summary>
+            取得Redis客户端实例
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.Redis.#ctor">
+            <summary>
+            私有构造函数，防止实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.Redis.Finalize">
+            <summary>
+            释放资源
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.Redis.Create(System.String,System.Int32,System.Int32)">
+            <summary>
+            创建RedisClient
+            </summary>
+            <param name="server">服务器，默认为127.0.0.1</param>
+            <param name="port">端口，默认为6379</param>
+            <param name="db">数据库，默认为0，Redis默认内置了0-15个数据库</param>
+            <returns>RedisClient对象</returns>
+        </member>
+        <member name="M:FastCore.Redis.Redis.Create(System.String,System.Int32,System.String,System.Int32)">
+            <summary>创建RedisClient</summary>
+            <param name="server">服务器，默认为127.0.0.1</param>
+            <param name="port">端口，默认为6379</param>
+            <param name="password">密码，默认为空</param>
+            <param name="db">数据库，默认为0，Redis默认内置了0-15个数据库</param>
+            <returns>RedisClient对象</returns>
+        </member>
+        <member name="M:FastCore.Redis.Redis.Create(FastCore.Redis.RedisOption)">
+            <summary>
+            创建RedisClient
+            </summary>
+            <param name="option">配置</param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.Redis.RedisClient">
+            <summary>
+            Redis客户端。
+            各种Redis命令的实现。
+            当设置好命令以后，系统会从连接池中取出一个RedisConnection对象将命令发送给服务器，并从服务器接收数据。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.#ctor(FastCore.Redis.RedisOption)">
+            <summary>
+            实例化
+            </summary>
+            <param name="option">配置</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)：
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="P:FastCore.Redis.RedisClient.IsLogined">
+            <summary>是否已登录</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisClient.LoginTime">
+            <summary>登录时间</summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Close">
+            <summary>
+            关闭客户端
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Ping">
+            <summary>Ping服务器</summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Quit">
+            <summary>切断服务器连接</summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Select(System.Int32)">
+            <summary>切换Db</summary>
+            <param name="db">数据库，Redis默认内置0-15个数据库</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Set``1(System.String,``0,System.Int32)">
+            <summary>设置单个Key</summary>
+            <typeparam name="T">设置的类型</typeparam>
+            <param name="key">键</param>
+            <param name="value">值</param>
+            <param name="ttl">存活时间，秒。-1表示永不过期</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Set``1(System.Collections.Generic.IDictionary{System.String,``0},System.Int32)">
+            <summary>设置多个Key</summary>
+            <typeparam name="T">设置的类型</typeparam>
+            <param name="values">字典</param>
+            <param name="ttl">存活时间，秒。-1表示永不过期</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Get``1(System.String)">
+            <summary>
+            根据Key获取对象
+            </summary>
+            <typeparam name="T">返回的类型</typeparam>
+            <param name="key">键</param>
+            <returns>返回T的实例</returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Get``1(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            根据Key批量获取对象
+            </summary>
+            <typeparam name="T">返回的类型</typeparam>
+            <param name="keys">键</param>
+            <returns>返回T的实例字典</returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.Execute(FastCore.Redis.RedisCommand)">
+            <summary>
+            执行命令
+            </summary>
+            <param name="cmd"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisClient.TryConvertType``1(System.Object)">
+            <summary>
+            尝试将结果转换成目标类型
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="result"></param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.Redis.RedisClient.RedisConnCache">
+            <summary>
+            Redis连接缓存
+            </summary>
+        </member>
+        <member name="F:FastCore.Redis.RedisClient.instance">
+            <summary>
+            取得Redis实例对象
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.Commands">
+            <summary>
+            Redis支持的命令
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.CommandType">
+            <summary>
+            命令类型
+            </summary>
+        </member>
+        <member name="F:FastCore.Redis.CommandType.One">
+            <summary>
+            单条命令
+            </summary>
+        </member>
+        <member name="F:FastCore.Redis.CommandType.Batch">
+            <summary>
+            批量命令
+            </summary>
+        </member>
+        <member name="F:FastCore.Redis.CommandType.Multiple">
+            <summary>
+            多条命令
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.RedisCommand">
+            <summary>
+            Redis命令
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisCommand.Type">
+            <summary>
+            命令类型
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisCommand.Command">
+            <summary>
+            命令
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisCommand.Value">
+            <summary>
+            值
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisCommand.Text">
+            <summary>
+            命令文本
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisCommand.#ctor(System.Byte[],System.Object[])">
+            <summary>
+            单条命令，命令格式：
+            命令 Key Value [Key1 Value1 Key2 Value2 ...]
+            示例：
+            SET key1 "Hello"
+            MSET key1 "Hello" key2 "World" key3 "China"
+            </summary>
+            <param name="cmd">命令</param>
+            <param name="args">Key,Value</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisCommand.#ctor(System.Byte[],System.Collections.Generic.IDictionary{System.String,System.Object},System.Boolean)">
+            <summary>
+            批量命令，命令格式：
+            命令A Key Value 
+            命令A Key Value
+            ....
+            示例：
+            SET key1 "Hello"
+            SET key2 "World"
+            ...
+            </summary>
+            <param name="cmd">命令</param>
+            <param name="args">Key-Value</param>
+            <param name="_batch">批量标志，仅占位用，防止new RedisCommand(Commands.Ping, null)这类构造函数报错</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisCommand.#ctor(System.Collections.Generic.IDictionary{System.Byte[],System.Collections.Generic.IDictionary{System.String,System.Object}})">
+            <summary>
+            多条命令，命令格式：
+            命令A Key Value [Key1 Value1 Key2 Value2 ...]
+            命令B Key Value [Key1 Value1 Key2 Value2 ...]
+            命令C Key Value [Key1 Value1 Key2 Value2 ...]
+            ....
+            示例：
+            SET key1 "Hello"
+            MSET key1 "Hello" key2 "World"
+            GET key1
+            ...
+            </summary>
+            <param name="cmdargs">命令-Key-Value</param>
+        </member>
+        <member name="T:FastCore.Redis.RedisConnection">
+            <summary>
+            Redis连接。
+            仅用于将命令打包发送给服务器，从服务器接收返回数据，不要增加其它功能。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.#ctor">
+            <summary>
+            实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Finalize">
+            <summary>
+            卸载资源。
+            这个析构函数只有在Dispose方法没有被调用时才会运行。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Dispose">
+            <summary>
+            销毁。不要使此方法为虚方法。不应让派生类能重写此方法。
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Dispose(System.Boolean)">
+            <summary>
+            在两个不同的场景中执行Dispose(bool Dispose)：
+            如果dispose = true，则该方法已被用户代码直接或间接调用。可以释放托管和非托管资源(Managed and unmanaged resources)。
+            如果dispose = false，则运行时已从终结器(finalizer,即析构函数)内部调用该方法，您不应再引用其他对象，只能释放非托管资源。
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.IsConnected">
+            <summary>
+            是否已连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Close">
+            <summary>
+            关闭连接
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Initialize(FastCore.Redis.RedisOption)">
+            <summary>
+            初始化连接
+            </summary>
+            <param name="option">配置</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Execute(FastCore.Redis.RedisCommand)">
+            <summary>执行命令</summary>
+            <param name="cmd"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Send(System.Net.Sockets.NetworkStream,FastCore.Redis.RedisCommand)">
+            <summary>
+            发送命令给服务器
+            </summary>
+            <param name="ns"></param>
+            <param name="cmd"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Receive(System.Net.Sockets.NetworkStream,System.Int32)">
+            <summary>
+            从服务器接收响应
+            </summary>
+            <param name="ns"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Connect">
+            <summary>
+            连接到Redis服务器
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.Clear">
+            <summary>
+            尝试清理掉历史残留数据
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.ReadLine(System.IO.Stream)">
+            <summary>
+            读取一行
+            </summary>
+            <param name="bs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.ReadBlock(System.IO.Stream)">
+            <summary>
+            读取一个大容量字符串(Bulk Strings)
+            </summary>
+            <param name="bs"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.ReadBlocks(System.IO.Stream)">
+            <summary>
+            读取一个数组(Arrays)
+            说明：按照官方文档数组中的元素可以是混合的RESP类型，但根据官方文档对客户端-服务器的交互方式，应该总是：客户端向Redis服务器发送一个由大容量字符串组成的RESP数组。
+                 因此这里读取数组时只读取数组中的BulkStrings和嵌套的数组中数据。
+            参考：https://redis.io/topics/protocol (RESP protocol description 和 Sending commands to a Redis Server)
+            </summary>
+            <param name="bs"></param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.Redis.RedisConnection.RedisMemoryStreamCache">
+            <summary>
+            Redis内存流缓存池
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisConnection.RedisMemoryStreamCache.Capacity">
+            <summary>缓存容量, 以字节为单位。默认1024字节</summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.RedisMemoryStreamCache.Get">
+            <summary>
+            重写Get，取得缓存流
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.Redis.RedisConnection.RedisMemoryStreamCache.Put(System.IO.MemoryStream)">
+            <summary>
+            重写Put，归还缓存流
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="F:FastCore.Redis.RedisConnection.instance">
+            <summary>
+            取得实例对象
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.RedisServerException">
+            <summary>
+            Redis服务器异常
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisServerException.#ctor">
+            <summary>
+            实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisServerException.#ctor(System.String)">
+            <summary>
+            实例化
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:FastCore.Redis.RedisServerException.#ctor(System.String,System.Exception)">
+            <summary>
+            实例化
+            </summary>
+            <param name="message"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="P:FastCore.Redis.RedisServerException.Message">
+            <summary>
+            消息
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisServerException.StackTrace">
+            <summary>
+            跟踪
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.RedisClientException">
+            <summary>
+            Redis客户端异常
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClientException.#ctor">
+            <summary>
+            实例化
+            </summary>
+        </member>
+        <member name="M:FastCore.Redis.RedisClientException.#ctor(System.String)">
+            <summary>
+            实例化
+            </summary>
+            <param name="message">消息</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisClientException.#ctor(System.String,System.Exception)">
+            <summary>
+            实例化
+            </summary>
+            <param name="message">消息</param>
+            <param name="exception">异常</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisClientException.#ctor(System.String,System.Reflection.MethodBase,System.String)">
+            <summary>
+            实例化
+            </summary>
+            <param name="message">消息</param>
+            <param name="source">消息来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="M:FastCore.Redis.RedisClientException.#ctor(System.Exception,System.Reflection.MethodBase,System.String)">
+            <summary>
+            实例化
+            </summary>
+            <param name="exception">异常</param>
+            <param name="source">异常来源</param>
+            <param name="extraData">附加数据</param>
+        </member>
+        <member name="P:FastCore.Redis.RedisClientException.Message">
+            <summary>
+            消息
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisClientException.Source">
+            <summary>
+            来源
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisClientException.StackTrace">
+            <summary>
+            跟踪
+            </summary>
+        </member>
+        <member name="T:FastCore.Redis.RedisOption">
+            <summary>
+            Redis选项配置
+            </summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.Server">
+            <summary>服务器，例如：127.0.0.1</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.Port">
+            <summary>端口，例如：6379</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.Password">
+            <summary>密码</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.Db">
+            <summary>数据库，默认0。Redis默认内建0-15个数据库</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.ConnectTimeout">
+            <summary>连接超时时间，以毫秒为单位。默认5000ms</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.SendTimeout">
+            <summary>发送数据超时时间，以毫秒为单位。默认3000ms</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.ReceiveTimeout">
+            <summary>接收数据超时时间，以毫秒为单位。默认3000ms</summary>
+        </member>
+        <member name="P:FastCore.Redis.RedisOption.RetryCount">
+            <summary>出错时重试次数，默认3次</summary>
+        </member>
+        <member name="T:FastCore.Security.Aes">
+            <summary>
+            Aes军工级加密/解密
+            </summary>
+        </member>
+        <member name="M:FastCore.Security.Aes.Encrypt(System.String,System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="password">明文密码</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>密文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Aes.Encrypt(System.Byte[],System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>密文数据</returns>
+        </member>
+        <member name="M:FastCore.Security.Aes.Decrypt(System.String,System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="password">密文密码</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Aes.Decrypt(System.Byte[],System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文数据</returns>
+        </member>
+        <member name="T:FastCore.Security.Des">
+            <summary>
+            Des加密/解密
+            </summary>
+        </member>
+        <member name="M:FastCore.Security.Des.Encrypt(System.String,System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="password">明文密码</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过24个字节</param>
+            <returns>密文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Des.Encrypt(System.Byte[],System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>密文数据</returns>
+        </member>
+        <member name="M:FastCore.Security.Des.Decrypt(System.String,System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="password">密文密码</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Des.Decrypt(System.Byte[],System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文数据</returns>
+        </member>
+        <member name="T:FastCore.Security.KeyGen">
+            <summary>
+            安全密钥生成器(Security Key Generator)
+            </summary>
+        </member>
+        <member name="M:FastCore.Security.KeyGen.GenerateRandomKey(System.Int32)">
+            <summary>
+            生成随机密钥
+            </summary>
+            <param name="length">Key长度, 16,24,32,64...</param>
+            <returns>返回Base64编码的密钥，必须保存好不要丢失</returns>
+        </member>
+        <member name="M:FastCore.Security.KeyGen.GenerateAesKey">
+            <summary>
+            生成随机的Aes密钥
+            </summary>
+            <returns>返回Base64编码的密钥，必须保存好不要丢失</returns>
+        </member>
+        <member name="M:FastCore.Security.KeyGen.GenerateDesKey">
+            <summary>
+            生成随机的Des密钥
+            </summary>
+            <returns>返回Base64编码的密钥，必须保存好不要丢失</returns>
+        </member>
+        <member name="M:FastCore.Security.KeyGen.GenerateTeaKey">
+            <summary>
+            生成随机的Tea密钥
+            </summary>
+            <returns>返回Base64编码的密钥，必须保存好不要丢失</returns>
+        </member>
+        <member name="M:FastCore.Security.KeyGen.GenerateValidKey(System.String,System.Int32,System.Int32)">
+            <summary>
+            生成有效的密钥
+            </summary>
+            <param name="key">密钥</param>
+            <param name="minLength">密钥最小长度(字节数)，默认16字节</param>
+            <param name="maxLength">密钥最大长度(字节数)，默认32字节</param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.Security.Rc4">
+            <summary>RC4对称加密/解密</summary>
+            <remarks>
+            RC4于1987年提出，和DES算法一样，是一种对称加密算法，也就是说使用的密钥为单钥（或称为私钥）。
+            但不同于DES的是，RC4不是对明文进行分组处理，而是字节流的方式依次加密明文中的每一个字节，解密的时候也是依次对密文中的每一个字节进行解密。
+            
+            RC4算法的特点是算法简单，运行速度快，而且密钥长度是可变的，可变范围为1-256字节(8-2048比特)，
+            在如今技术支持的前提下，当密钥长度为128比特时，用暴力法搜索密钥已经不太可行，所以可以预见RC4的密钥范围任然可以在今后相当长的时间里抵御暴力搜索密钥的攻击。
+            实际上，如今也没有找到对于128bit密钥长度的RC4加密算法的有效攻击方法。
+            参考：https://github.com/NewLifeX/X
+            </remarks>
+        </member>
+        <member name="M:FastCore.Security.Rc4.Encrypt(System.String,System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="password">明文密码</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>密文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Rc4.Encrypt(System.Byte[],System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>密文数据</returns>
+        </member>
+        <member name="M:FastCore.Security.Rc4.Decrypt(System.String,System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="password">密文密码</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Rc4.Decrypt(System.Byte[],System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过32个字节</param>
+            <returns>明文数据</returns>
+        </member>
+        <member name="M:FastCore.Security.Rc4.GetKey(System.Byte[],System.Int32)">
+            <summary>打乱密码</summary>  
+            <param name="pass">密码</param>  
+            <param name="len">密码箱长度</param>  
+            <returns>打乱后的密码</returns>  
+        </member>
+        <member name="T:FastCore.Security.Tea">
+            <summary>
+            TEA(Tiny Encryption Algorithm) 加密/解密
+            </summary>
+            <remarks>
+            参考：https://github.com/amos74/TEACrypt
+            </remarks>
+        </member>
+        <member name="M:FastCore.Security.Tea.Encrypt(System.String,System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="password">明文密码</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过16个字节</param>
+            <returns>密文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Tea.Encrypt(System.Byte[],System.String)">
+            <summary>
+            加密
+            </summary>
+            <param name="data">数据</param>
+            <param name="key">如果不指定密钥将使用内置的固定密钥. Key的长度不应超过16个字节</param>
+            <returns>密文数据</returns>
+        </member>
+        <member name="M:FastCore.Security.Tea.Decrypt(System.String,System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="password">密文密码</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过16个字节</param>
+            <returns>明文密码</returns>
+        </member>
+        <member name="M:FastCore.Security.Tea.Decrypt(System.Byte[],System.String)">
+            <summary>
+            解密
+            </summary>
+            <param name="data">密文数据</param>
+            <param name="key">用GenerateKey生成的密钥或自定义密钥，如果不指定密钥将使用内置的固定密钥. Key的长度不应超过16个字节</param>
+            <returns>明文数据</returns>
+        </member>
+        <member name="T:FastCore.UniqueID.GuidCombGenerator">
+            <summary>
+            NHibernate改进的UUD UniqueID生成算法。如果想要生成字符串UID可以采用此算法。
+            </summary>
+            <remarks>
+            https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Id/GuidCombGenerator.cs
+            using a strategy suggested Jimmy Nilsson's(使用Jimmy Nilsson建议的策略)
+            http://www.informit.com/articles/article.asp?p=25862
+            http://www.informit.com
+            </remarks>
+        </member>
+        <member name="M:FastCore.UniqueID.GuidCombGenerator.NextId">
+            <summary>
+            Generate a new Guid using the comb algorithm.
+            使用comb算法生成一个新的Guid。
+            </summary>
+        </member>
+        <member name="T:FastCore.UniqueID.SnowflakeGenerator">
+            <summary>
+            Twitter Snowflake UniqueID生成算法。如果想要生成数值UID可以采用此算法。
+            From: https://github.com/twitter/snowflake
+            An object that generates IDs.
+            This is broken into a separate class in case
+            we ever want to support multiple worker threads
+            per process
+            </summary>
+        </member>
+        <member name="M:FastCore.UniqueID.SnowflakeGenerator.#ctor(System.Int64,System.Int64)">
+            <summary>
+            实例化
+            </summary>
+            <param name="workerId">工作ID, 取值范围: 0~31</param>
+            <param name="datacenterId">数据中心ID, 取值范围: 0~31</param>
+        </member>
+        <member name="M:FastCore.UniqueID.SnowflakeGenerator.NextId">
+            <summary>
+            获得下一个ID
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.UniqueID.SnowflakeGenerator.tilNextMillis(System.Int64)">
+            <summary>
+            阻塞到下一个毫秒，直到获得新的时间戳
+            </summary>
+            <param name="lastTimestamp">上次生成ID的时间截</param>
+            <returns>当前时间戳</returns>
+        </member>
+        <member name="M:FastCore.UniqueID.SnowflakeGenerator.timeGen">
+            <summary>
+            生成时间戳(毫秒)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.DoubleConverter">
+            <summary>
+            A class to allow the conversion of doubles to string representations of
+            their exact decimal values. The implementation aims for readability over
+            efficiency.
+            
+            Courtesy of @JonSkeet
+            http://www.yoda.arachsys.com/csharp/DoubleConverter.cs
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ToExactString(System.Double)">
+            <summary>
+            Converts the given double to a string representation of its
+            exact decimal value.
+            </summary>
+            <param name="d">The double to convert.</param>
+            <returns>A string representation of the double's exact decimal value.</returns>
+        </member>
+        <member name="T:FastCore.DoubleConverter.ArbitraryDecimal">
+            <summary>
+            Private class used for manipulating
+            </summary>
+        </member>
+        <member name="F:FastCore.DoubleConverter.ArbitraryDecimal.digits">
+            <summary>
+            Digits in the decimal expansion, one byte per digit 
+            </summary>
+        </member>
+        <member name="F:FastCore.DoubleConverter.ArbitraryDecimal.decimalPoint">
+            <summary> 
+            How many digits are *after* the decimal point
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ArbitraryDecimal.#ctor(System.Int64)">
+            <summary> 
+            Constructs an arbitrary decimal expansion from the given long.
+            The long must not be negative.
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ArbitraryDecimal.MultiplyBy(System.Int32)">
+            <summary>
+            Multiplies the current expansion by the given amount, which should
+            only be 2 or 5.
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ArbitraryDecimal.Shift(System.Int32)">
+            <summary>
+            Shifts the decimal point; a negative value makes
+            the decimal expansion bigger (as fewer digits come after the
+            decimal place) and a positive value makes the decimal
+            expansion smaller.
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ArbitraryDecimal.Normalize">
+            <summary>
+            Removes leading/trailing zeroes from the expansion.
+            </summary>
+        </member>
+        <member name="M:FastCore.DoubleConverter.ArbitraryDecimal.ToString">
+            <summary>
+            Converts the value to a proper decimal string representation.
+            </summary>
+        </member>
+        <member name="T:FastCore.ObjectCheck">
+            <summary>
+            各种对象校验
+            </summary>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsInteger(System.Object)">
+            <summary>
+            是否为整型
+            </summary>
+            <param name="value">要判定的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsNumeric(System.Object)">
+            <summary>
+            是否为数字
+            </summary>
+            <param name="value">要判定的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsDate(System.Object)">
+            <summary>
+            是否为日期
+            </summary>
+            <param name="value">要判定的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsEmpty(System.String)">
+            <summary>判断字符串是否为String.Empty</summary>
+            <param name="value">字符串</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsNullOrEmpty(System.String)">
+            <summary>判断字符串是否为null或String.Empty</summary>
+            <param name="value">字符串</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsNullOrWhiteSpace(System.String)">
+            <summary>字符串是否空或者空白字符串</summary>
+            <param name="value">字符串</param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectCheck.IsBase64(System.String)">
+            <summary>字符串是否采用Base64编码</summary>
+            <remarks>https://stackoverflow.com/questions/8571501/how-to-check-whether-a-string-is-base64-encoded-or-not</remarks>
+            <param name="value">字符串</param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.ObjectConvert">
+            <summary>
+            对象转换
+            </summary>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bool(System.Object)">
+            <summary>
+            将object转换成bool(System.Boolean)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2SByte(System.Object)">
+            <summary>
+            将object转换成sbyte(System.SByte)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Byte(System.Object)">
+            <summary>
+            将object转换成sbyte(System.Byte)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Short(System.Object)">
+            <summary>
+            将object转换成short(System.Int16)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2UShort(System.Object)">
+            <summary>
+            将object转换成ushort(System.UInt16)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Int(System.Object)">
+            <summary>
+            将object转换成int(System.Int32)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2UInt(System.Object)">
+            <summary>
+            将object转换成uint(System.UInt32)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Lng(System.Object)">
+            <summary>
+            将object转换成long(System.Int64)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2ULng(System.Object)">
+            <summary>
+            将object转换成long(System.UInt64)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dbl(System.Object)">
+            <summary>
+            将object转换成double(System.Double)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Flt(System.Object)">
+            <summary>
+            将object转换成float(System.Single)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dec(System.Object)">
+            <summary>
+            将object转换成decimal(System.Decimal)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Date(System.Object)">
+            <summary>
+            将object转换成DateTime
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Str(System.Object)">
+            <summary>
+            将object转换成string(System.String)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Chr(System.Object)">
+            <summary>
+            将object转换成char(System.Char)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dbs(System.Object)">
+            <summary>
+            将object转换成数据库非空字符串
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bool(System.String)">
+            <summary>
+            将string转换成bool(System.Boolean)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2SByte(System.String)">
+            <summary>
+            将string转换成sbyte(System.SByte)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Byte(System.String)">
+            <summary>
+            将string转换成byte(System.Byte)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Short(System.String)">
+            <summary>
+            将string转换成short(System.Int16)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2UShort(System.String)">
+            <summary>
+            将string转换成ushort(System.UInt16)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Int(System.String)">
+            <summary>
+            将string转换成int(System.Int32)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2UInt(System.String)">
+            <summary>
+            将string转换成uint(System.UInt32)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Lng(System.String)">
+            <summary>
+            将string转换成long(System.Int64)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2ULng(System.String)">
+            <summary>
+            将string转换成ulong(System.UInt64)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dbl(System.String)">
+            <summary>
+            将string转换成double(System.Double)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Flt(System.String)">
+            <summary>
+            将string转换成float(System.Single)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dec(System.String)">
+            <summary>
+            将string转换成decimal(System.Decimal)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Date(System.String)">
+            <summary>
+            将string转换成DateTime
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Chr(System.String)">
+            <summary>
+            将string转换成char(System.Char)
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dbs(System.String)">
+            <summary>
+            将string转换成数据库非空字符串
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Boolean)">
+            <summary>
+            将bool(System.Boolean)数值转换成字节数组
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Int16)">
+            <summary>
+            将short(System.Int16)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.UInt16)">
+            <summary>
+            将ushort(System.UInt16)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Int32)">
+            <summary>
+            将int(System.Int32)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.UInt32)">
+            <summary>
+            将uint(System.UInt32)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Int64)">
+            <summary>
+            将long(System.Int64)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.UInt64)">
+            <summary>
+            将ulong(System.UInt64)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Double)">
+            <summary>
+            将double(System.Double)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Single)">
+            <summary>
+            将float(System.Single)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Decimal)">
+            <summary>
+            将decimal(System.Decimal)数值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.DateTime)">
+            <summary>
+            将DateTime值转换成字节
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.FastToBytes(System.String)">
+            <summary>
+            将字符串快速转换成字节
+            跳过'安全字符串'的编码过程
+            Skip the encoding process for 'safe strings' 
+            </summary>
+            <param name="strVal"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.String)">
+            <summary>
+            将string(System.String)转换成字节。
+            说明：string转换成字节时会进行UTF8编码。
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Object)">
+            <summary>
+            将object值转换成字节。
+            说明：如果value的类型是object，在转换成字节时, 首先序列化成json字符串，再UTF8编码成字节数组。
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bool(System.Byte[])">
+            <summary>
+            将字节数组转换成bool(System.Boolean)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2SByte(System.Byte[])">
+            <summary>
+            将字节数组转换成sbyte(System.SByte)有符号字节
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Byte(System.Byte[])">
+            <summary>
+            将字节数组转换成sbyte(System.Byte)无符号字节
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Short(System.Byte[])">
+            <summary>
+            将字节数组转换成short(System.Int16)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Bytes(System.Byte[])">
+            <summary>
+            将字节数组转换成ushort(System.UInt16)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Int(System.Byte[])">
+            <summary>
+            将字节数组转换成int(System.Int32)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2UInt(System.Byte[])">
+            <summary>
+            将字节数组转换成uint(System.UInt32)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Lng(System.Byte[])">
+            <summary>
+            将字节数组转换成long(System.Int64)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2ULng(System.Byte[])">
+            <summary>
+            将字节数组转换成ulong(System.UInt64)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dbl(System.Byte[])">
+            <summary>
+            将字节数组转换成double(System.Double)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Flt(System.Byte[])">
+            <summary>
+            将字节数组转换成float(System.Single)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Dec(System.Byte[])">
+            <summary>
+            将字节数组转换成decimal(System.Decimal)数值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Date(System.Byte[])">
+            <summary>
+            将字节数组转换成DateTime值
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Str(System.Byte[])">
+            <summary>
+            将字节数组转换成字符串string(System.String)
+            说明：value必须是已经UTF8编码后的字节数组。
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Chr(System.Byte[])">
+            <summary>
+            将字节数组转换成char(System.Char)字符
+            </summary>
+            <param name="value">要转换的值</param>
+            <returns>转换后的值</returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Obj``1(System.Byte[])">
+            <summary>
+            将byte[]值转成T。
+            说明：value必须是已经序列化成json字符串再UTF8编码后的字节数组。
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:FastCore.ObjectConvert.C2Obj``1(System.String)">
+            <summary>
+            将string值转成T。
+            说明：value必须是已经序列化成json的字符串。
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:FastCore.TypeConvert">
+            <summary>
+            类型转换
+            </summary>
+        </member>
+        <member name="M:FastCore.TypeConvert.C2Type``1(System.Object)">
+            <summary>
+            将object类型转换成指定的类型
+            </summary>
+            <typeparam name="T">目标类型</typeparam>
+            <param name="value">转换的值</param>
+            <returns>转换后的目标类型值，转换失败则返回目标类型的默认值</returns>
+        </member>
+    </members>
+</doc>

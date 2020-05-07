@@ -1,0 +1,8 @@
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\obj\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.AssemblyInfoInputs.cache
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\obj\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.AssemblyInfo.cs
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\bin\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.deps.json
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\bin\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.dll
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\bin\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.pdb
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\obj\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.dll
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\obj\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.pdb
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Project\bin\Debug\netstandard2.0\Microsoft.AspNetCore.MemoryCache.xml

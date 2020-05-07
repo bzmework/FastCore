@@ -1,0 +1,187 @@
+﻿// System.IO.MemoryStream
+// 说明：不明白MemoryStream的设计机制使用起来容易出错，
+// 下面是部分源码的摘录，化繁为简删去了许多，目的是便于理解。
+//
+// MemoryStream就像一个容器：
+//
+// |--------|<- 容量(Capacity)
+// |        |
+// |--------|<- 盖子(Length)(可调整位置，不能超过容量，一旦指定了盖子的位置，放入的物品就不能超过这个位置)
+// |        |
+// |        |
+// |########|<- 游标(Position)(可上下移动，活动范围是容器底部到盖子位置，它的位置随着放入和取出的物品数量的多少而移动，以标记物品的放入和取出情况)
+// |########|
+// |########|
+// |########|
+// |########|
+// |--------|
+//
+// "#"代表物品（数组的元素）。
+
+using System;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
+using System.Threading;
+using System.Threading.Tasks;
+
+[Serializable]
+[ComVisible(true)]
+public class MemoryStream : Stream
+{
+	private byte[] _buffer;
+	private int _position;
+	private int _length;
+
+	public MemoryStream()
+		: this(0)
+	{
+	}
+
+	public MemoryStream(int capacity)
+	{
+		_buffer = new byte[capacity];
+		_capacity = capacity;
+		_writable = true; // CanWrite
+		_isOpen = true; // CanRead，CanSeek
+	}
+
+	// 获得桶
+	public byte[] GetBuffer()
+	{
+		return _buffer;
+	}
+
+	// 设置桶的容量
+	public int Capacity
+	{
+		set
+		{
+			if (value > 0)
+			{
+				byte[] array = new byte[value];
+				if (_length > 0) // 将原来桶中的物品放进来
+				{
+					Buffer.InternalBlockCopy(_buffer, 0, array, 0, _length);
+				}
+				_buffer = array;
+			}
+			else
+			{
+				_buffer = null;
+			}
+			_capacity = value;
+		}
+	}
+
+	public override long Length
+	{
+		get
+		{
+			return _length;
+		}
+	}
+
+	public override int Read([In] [Out] byte[] buffer, int count)
+	{
+		int num = _length - _position;  
+		if (num > count) // 还有物品可取
+		{
+			num = count;
+		}
+		if (num <= 0) // 无物品可取
+		{
+			return 0;
+		}
+		if (num <= 8) // 取出少量物品
+		{
+			int num2 = num;
+			while (--num2 >= 0)
+			{
+				buffer[num2] = _buffer[_position + num2];
+			}
+		}
+		else
+		{
+			Buffer.InternalBlockCopy(_buffer, _position, buffer, 0, num);
+		}
+		_position += num;// 移动游标位置
+		return num;
+	}
+	 
+	public override int ReadByte()
+	{
+		if (_position >= _length)
+		{
+			return -1;
+		}
+		return _buffer[_position++];
+	}
+
+	public void SetLength(int newLen)
+	{
+		if (newLen < _capacity && newLen > _length) // 新加入物品到桶中的时候需要清洗一遍  
+		{
+			Array.Clear(_buffer, _length, newLen - _length);
+		}
+		_length = newLen; // 盖上盖子限定高度
+		if (_position > newLen) // 如果游标已经超过当前高度，将其放在桶盖位置，这样总是能保证游标在盖子的下面。
+		{
+			_position = newLen;
+		}
+	}
+
+	public long Position
+	{
+		set
+		{
+			_position = (int)value; // 设置游标位置
+		}
+	}
+
+	public void Write(byte[] buffer, int count)
+	{
+		int num = _position + count; // 从游标位置开始，设置本次放入桶中的物品数量
+
+		if (num > _length) // 放入的数量已经超过桶盖了，容纳不了。
+		{
+			bool flag = _position > _length; // 是因为游标位置超过桶盖的原因吗？
+			if (num > _capacity && EnsureCapacity(num)) //还是因为放入的数量已经超过桶的容量了？
+			{
+				flag = false;
+			}
+			if (flag) // 没有超过桶的容量，是因为游标的位置对或者已经放满了，要把桶盖位置调高，不然放不进去。
+			{
+				Array.Clear(_buffer, _length, num - _length); // 新加入的物品需要清洗一遍  
+			}
+			_length = num; // 拉高盖子的高度，重新盖上，限定高度
+		}
+
+		if (count <= 8 && buffer != _buffer) // 放入的数量较少
+		{
+			int num2 = count;
+			while (--num2 >= 0)
+			{
+				// 注意：如果只调整了盖子高度没有调整游标位置，这里会导致物品放不进桶中，直接崩盘。
+				// 显然在前面SetLength的时候，始终将游标放在盖子下面的。
+				// 所以当拉高盖子高度的时候，游标在桶底。
+				_buffer[_position + num2] = buffer[num2]; 
+			}
+		}
+		else
+		{
+			Buffer.InternalBlockCopy(buffer, 0, _buffer, _position, count);
+		}
+		_position = num; // 移动游标到新的位置
+	}
+
+	public virtual void WriteTo(Stream stream)
+	{
+		stream.Write(_buffer, 0, _length); // 将桶底到桶盖位置的所有物品给stream
+	}
+}
+
+// 结论：通过分析SetLength、Position、Write函数，可以知道，如果想要"重复使用内存流缓存"：
+// 1.使用前应该设置好桶的容量（new MemoryStream(int capacity)）。
+// 2.每次使用完毕以后应该Position(0), SetLength(0)，把游标和盖子放在桶底。

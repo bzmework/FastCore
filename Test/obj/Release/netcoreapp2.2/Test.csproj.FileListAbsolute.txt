@@ -1,0 +1,14 @@
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Test.deps.json
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Test.runtimeconfig.json
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Test.runtimeconfig.dev.json
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Test.dll
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Test.pdb
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Microsoft.AspNetCore.MemoryCache.dll
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Microsoft.AspNetCore.MemoryCache.pdb
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.csprojAssemblyReference.cache
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.AssemblyInfoInputs.cache
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.AssemblyInfo.cs
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.csproj.CopyComplete
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.dll
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Release\netcoreapp2.2\Test.pdb
+I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Release\netcoreapp2.2\Microsoft.AspNetCore.MemoryCache.xml
