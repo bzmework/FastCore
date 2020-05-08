@@ -1,9 +1,0 @@
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Debug\Test.exe.config
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Debug\Test.exe
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Debug\Test.pdb
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Debug\Microsoft.AspNetCore.MemoryCache.dll
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\bin\Debug\Microsoft.AspNetCore.MemoryCache.pdb
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Debug\Test.csprojAssemblyReference.cache
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Debug\Test.csproj.CopyComplete
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Debug\Test.exe
-I:\我的项目\CloudERP\SourceCode\MemoryCacheCore\Test\obj\Debug\Test.pdb
