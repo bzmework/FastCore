@@ -9,7 +9,7 @@ FastCore目前实现的功能模块如下：
 Cache：包括数据缓存，内存缓存，消息缓存，对象缓存。其中Cache是高速内存缓存和Redis缓存的统一，保证任何时候缓存都有效。   
 Hash：包括Md5、Sha256、MurmurHash3散列算法。MurmurHash3是谷歌采用的哈希算法，通常用于搜索引擎中为网址生成唯一的散列值，高效率且低碰闯率。   
 Json：基于NetJSON改写。NetJSON由于采用了一些技巧其速度非常快，优于Newtonsoft.Json和System.Text.Json。经过测试后我最终放弃了Newtonsoft.Json，NetJSON的代码友好度不是很好，我在逻辑上会不断进行改进和优化。   
-Jwt：JSON Web Token (JWT)。学习文档参见““Jwt.docx”。   
+Jwt：JSON Web Token (JWT)。学习文档参见“Jwt.docx”。   
 Log：日志管理，放弃了log4net，复杂的日志系统没有必要，能输出到文件、邮件、控制台、调试窗口即可。   
 Redis：Redis数据库客户端，目前只实现了Get和Set指令，其它功能逐步加入，经过对比测试其性能优于其它C#实现的Redis客户端(你可以自己测试对比一下)。学习文档参见“Session(含Redis).docx”。   
 Security：加密解密，仅包含主流常用的Aes、Des、Tea等。
