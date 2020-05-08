@@ -25,6 +25,7 @@ FastCore目前实现的功能模块如下：
 测试样例：   
 
 ![image](https://github.com/bzmework/fastcore/blob/master/test.png)     
+![image](https://img.wenhairu.com/image/YUnAG)     
 
 编译环境：   
 Windows 10   
