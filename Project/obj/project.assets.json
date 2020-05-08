@@ -392,11 +392,11 @@
   "project": {
     "version": "2.2.0",
     "restore": {
-      "projectUniqueName": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj",
+      "projectUniqueName": "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj",
       "projectName": "FastCore",
-      "projectPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj",
+      "projectPath": "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj",
       "packagesPath": "I:\\Packages",
-      "outputPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\obj\\",
+      "outputPath": "I:\\我的项目\\组件\\FastCore\\Project\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\",

@@ -13,10 +13,6 @@ I:\我的项目\组件\FastCore\Project\bin\Release\netstandard2.0\FastCore.pdb
 I:\我的项目\组件\FastCore\Project\obj\Release\netstandard2.0\FastCore.dll
 I:\我的项目\组件\FastCore\Project\obj\Release\netstandard2.0\FastCore.pdb
 I:\我的项目\组件\FastCore\Project\bin\Release\netstandard2.0\FastCore.xml
-I:\我的项目\组件\FastCore\Project\bin\Release\netstandard2.0\log4net.dll
-I:\我的项目\组件\FastCore\Project\bin\Release\netstandard2.0\log4net.pdb
-I:\我的项目\组件\FastCore\Project\bin\Release\netstandard2.0\log4net.xml
-I:\我的项目\组件\FastCore\Project\obj\Release\netstandard2.0\FastCore.csproj.CopyComplete
 I:\我的项目\组件\FastCore\Project\obj\Release\netstandard2.0\FastCore.csprojAssemblyReference.cache
 I:\我的项目\eLongErp\Framwwork\FastCore\Project\bin\Release\netstandard2.0\FastCore.xml
 I:\我的项目\eLongErp\Framwwork\FastCore\Project\bin\Release\netstandard2.0\FastCore.deps.json

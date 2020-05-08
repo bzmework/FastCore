@@ -45,9 +45,6 @@ I:\我的项目\组件\FastCore\Test\obj\Release\netcoreapp3.1\Test.csproj.CopyC
 I:\我的项目\组件\FastCore\Test\obj\Release\netcoreapp3.1\Test.dll
 I:\我的项目\组件\FastCore\Test\obj\Release\netcoreapp3.1\Test.pdb
 I:\我的项目\组件\FastCore\Test\bin\Release\netcoreapp3.1\FastCore.xml
-I:\我的项目\组件\FastCore\Test\bin\Release\netcoreapp3.1\log4net.dll
-I:\我的项目\组件\FastCore\Test\bin\Release\netcoreapp3.1\log4net.pdb
-I:\我的项目\组件\FastCore\Test\bin\Release\netcoreapp3.1\log4net.xml
 I:\我的项目\eLongErp\Framwwork\FastCore\Test\bin\Release\netcoreapp3.1\Test.exe
 I:\我的项目\eLongErp\Framwwork\FastCore\Test\bin\Release\netcoreapp3.1\Test.deps.json
 I:\我的项目\eLongErp\Framwwork\FastCore\Test\bin\Release\netcoreapp3.1\Test.runtimeconfig.json

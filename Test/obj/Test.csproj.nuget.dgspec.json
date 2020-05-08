@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Test\\Test.csproj": {}
+    "I:\\我的项目\\组件\\FastCore\\Test\\Test.csproj": {}
   },
   "projects": {
-    "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj": {
+    "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj": {
       "version": "2.2.0",
       "restore": {
-        "projectUniqueName": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj",
+        "projectUniqueName": "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj",
         "projectName": "FastCore",
-        "projectPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj",
+        "projectPath": "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj",
         "packagesPath": "I:\\Packages",
-        "outputPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\obj\\",
+        "outputPath": "I:\\我的项目\\组件\\FastCore\\Project\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\",
@@ -75,14 +75,14 @@
         }
       }
     },
-    "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Test\\Test.csproj": {
+    "I:\\我的项目\\组件\\FastCore\\Test\\Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Test\\Test.csproj",
+        "projectUniqueName": "I:\\我的项目\\组件\\FastCore\\Test\\Test.csproj",
         "projectName": "Test",
-        "projectPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Test\\Test.csproj",
+        "projectPath": "I:\\我的项目\\组件\\FastCore\\Test\\Test.csproj",
         "packagesPath": "I:\\Packages",
-        "outputPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Test\\obj\\",
+        "outputPath": "I:\\我的项目\\组件\\FastCore\\Test\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Microsoft\\Xamarin\\NuGet\\",
@@ -106,8 +106,8 @@
         "frameworks": {
           "netcoreapp3.1": {
             "projectReferences": {
-              "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj": {
-                "projectPath": "I:\\我的项目\\eLongErp\\Framework\\FastCore\\Project\\FastCore.csproj"
+              "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj": {
+                "projectPath": "I:\\我的项目\\组件\\FastCore\\Project\\FastCore.csproj"
               }
             }
           }

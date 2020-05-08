@@ -42,8 +42,6 @@ namespace Test
         
         static void Main(string[] args)
         {
-            var dbl = QuickConvert.C2Dbl("1.23");
-
             // 配置日志
             Log.Configure(LogTarget.Console | LogTarget.Debug);
 
@@ -685,6 +683,7 @@ namespace Test
 
             var p9 = Hash.Md5(pwd);
             Console.WriteLine($"MD5哈希: {p9}");
+            Console.WriteLine("");
         }
 
         private static void JWT测试()
@@ -749,7 +748,7 @@ namespace Test
 
             Console.WriteLine($"验证令牌，消耗{t.ElapsedMilliseconds}毫秒");
             t.Stop();
-
+            Console.WriteLine("");
         }
 
         private static void 消息处理测试()
@@ -797,9 +796,10 @@ namespace Test
             // 模拟随机读写
             // 测试说明：关闭Redis服务器，设置1个极大的数(例如1千万)，不断读写给内存造成极大压力(必须设置Key的TTL防止崩溃)。注意观察内存在一段时间以后是否被自动清理。
             Console.Write($"50000万数据缓存测试...");
+            int count = 100;
             Task.Factory.StartNew(() =>
             {
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var rnd = new Random();
                     var ttl = rnd.Next(1, 3600);
@@ -835,7 +835,7 @@ namespace Test
             });
 
             //Cache.Dispose(); // 销毁
-
+            Console.WriteLine("");
         }
 
         private static void 哈希测试()
@@ -860,7 +860,7 @@ namespace Test
             }
             Console.WriteLine($"Mur3生成字符串{str}的Hash值{i}次，消耗{t.ElapsedMilliseconds}毫秒");
             t.Stop();
-
+            Console.WriteLine("");
         }
 
         private static void UID测试()
@@ -885,6 +885,7 @@ namespace Test
             }
             Console.WriteLine($"SnowflakeGenerator生成UID{i}次，消耗{t.ElapsedMilliseconds}毫秒");
             t.Stop();
+            Console.WriteLine("");
         }
 
         /// <summary>
@@ -954,7 +955,8 @@ namespace Test
             Console.WriteLine($"System.Text.Json反序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
 
             t.Stop();
- 
+            Console.WriteLine("");
+
         }
 
         /// <summary>
@@ -1008,6 +1010,7 @@ namespace Test
 
 
             t.Stop();
+            Console.WriteLine("");
 
         }
     }
