@@ -1,7 +1,7 @@
 # FastCore
  FastCore是一个极简高效的.NET Core类库
 
-FastCore的设计目标是：极简、稳定、高效。 在代码编写上尽量做到简洁，运行速度上尽量做到稳定且高效。   
+FastCore的设计目标是：简洁、稳定、高效。 在代码编写上尽量做到简洁，运行速度上尽量做到稳定且高效。   
 设计FastCore的目的是：其将其运用到.Net Core WebAPI项目中作为核心类库使用。   
    
 FastCore目前实现的功能模块如下：   
