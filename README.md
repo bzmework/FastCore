@@ -14,6 +14,7 @@ Log：日志管理，放弃了log4net，能输出到文件、邮件、控制台�
 Redis：Redis数据库客户端，性能优于其它C#实现的Redis客户端(参见测试样例)。学习文档参见“Session(含Redis).docx”。   
 Security：加密解密，包含主流常用的Aes、Des、Tea等(参见测试样例)。
 UniqueID：唯一ID生成器，包含主流的GuidCombGenerator和SnowflakeGenerator(参见测试样例)。学习文档参见“UniqueID生成算法.docx”。   
+Bloom：布隆过滤器，用于防止缓存穿透、击穿、雪崩等等。
 Utility：功能模块，主要包含各种数据类型之间的相互转换。其中QuickConvert采用了不安全代码(即C++代码)，性能虽然优于系统函数，但不建议采用，仅供学习参考。
 ```
 
