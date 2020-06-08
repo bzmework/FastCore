@@ -14,10 +14,13 @@ using FastCore.Security;
 using FastCore.Jwt;
 using FastCore.HashAlg;
 using FastCore.UniqueID;
+using FastCore.Bloom;
 using System.Reflection;
 using System.IO;
 using System.Reflection.Emit;
 using System.Data.SqlClient;
+using Newtonsoft.Json.Linq;
+using Swifter.Json;
 
 namespace Test
 {
@@ -44,6 +47,9 @@ namespace Test
         {
             // 配置日志
             Log.Configure(LogTarget.Console | LogTarget.Debug);
+
+            布隆过滤器测试();
+            Console.ReadLine();
 
             Test1();
 
@@ -915,7 +921,14 @@ namespace Test
             i = 0;
             for (i = 0; i < n; i++)
             {
-                var json = Json.Serialize(org);
+                var org11 = new Organization()
+                {
+                    OrganizationID = i,
+                    OrganizationCode = "001",
+                    OrganizationName = "集团"
+                };
+
+                var json = Json.Serialize(org11);
             }
             Console.WriteLine($"FastCore.Json序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
 
@@ -932,6 +945,13 @@ namespace Test
                 var json = System.Text.Json.JsonSerializer.Serialize<Organization>(org, JsonSerializerOptionsProvider.Options);
             }
             Console.WriteLine($"System.Text.Json序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            t.Restart();
+            for (i = 0; i < n; i++)
+            {
+                var json = JsonFormatter.SerializeObject<Organization>(org);
+            }
+            Console.WriteLine($"Swifter.Json序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
 
             t.Restart();
             for (i = 0; i < n; i++)
@@ -954,9 +974,63 @@ namespace Test
             }
             Console.WriteLine($"System.Text.Json反序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
 
+            t.Restart();
+            for (i = 0; i < n; i++)
+            {
+                var org5 = JsonFormatter.DeserializeObject<Organization>(jsonx); 
+            }
+            Console.WriteLine($"Swifter.Json反序列化{n}条, 消耗{t.ElapsedMilliseconds}毫秒");
+
+   
+            //jsonx = Readjson("");
+
+            //t.Restart();
+            //var jsonObj1 = Json.Deserialize<Organization>(jsonx);
+            //Console.WriteLine($"FastCore.Json反序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            //t.Restart();
+            //var jsonObj2 = JsonConvert.DeserializeObject(jsonx);
+            //Console.WriteLine($"Newtonsoft.Json反序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            //t.Restart();
+            //var jsonObj3 = System.Text.Json.JsonSerializer.Deserialize<Organization>(jsonx, JsonSerializerOptionsProvider.Options);
+            //Console.WriteLine($"System.Text.Json反序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            //t.Start();
+            //var jsonStr1 = Json.Serialize(jsonObj2);
+            //Console.WriteLine($"FastCore.Json序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            //t.Restart();
+            //var jsonStr2 = JsonConvert.SerializeObject(jsonObj2);
+            //Console.WriteLine($"Newtonsoft.Json序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            //t.Restart();
+            //var jsonStr3 = System.Text.Json.JsonSerializer.Serialize<Organization>(jsonObj3, JsonSerializerOptionsProvider.Options);
+            //Console.WriteLine($"System.Text.Json序列化, 消耗{t.ElapsedMilliseconds}毫秒");
+
             t.Stop();
             Console.WriteLine("");
 
+        }
+
+        /// <summary>
+        /// 读取JSON文件
+        /// </summary>
+        /// <param name="key">JSON文件中的key值</param>
+        /// <returns>JSON文件中的value值</returns>
+        public static string Readjson(string key)
+        {
+            string jsonfile = @"I:\我的项目\组件\FastCore\jsonTest\TEST\json_str4.txt";//JSON文件路径
+
+            using (System.IO.StreamReader file = System.IO.File.OpenText(jsonfile))
+            {
+                using (JsonTextReader reader = new JsonTextReader(file))
+                {
+                    JObject o = (JObject)JToken.ReadFrom(reader);
+                    var value = o.ToString();
+                    return value;
+                }
+            }
         }
 
         /// <summary>
@@ -1008,6 +1082,49 @@ namespace Test
             Console.WriteLine($"C2Dbl {n}条, 消耗{t.ElapsedMilliseconds}毫秒");
 
 
+
+            t.Stop();
+            Console.WriteLine("");
+
+        }
+
+        /// <summary>
+        /// 布隆过滤器测试
+        /// </summary>
+        static void 布隆过滤器测试()
+        {
+            int i;
+
+            Console.WriteLine("");
+            Console.WriteLine("--------布隆过滤器测试---------");
+
+            Stopwatch t = new Stopwatch();
+
+            t.Start();
+
+            int count = 100000; // 预计要插入多少数据
+            double errRate = 0.01;// 误判率
+
+            var bf = new BloomFilter<int>(count, errRate);
+
+            //插入数据
+            for (i = 0; i < count; i++)
+            {
+                bf.Add(i);
+            }
+            Console.WriteLine($"{count}条, 消耗{t.ElapsedMilliseconds}毫秒");
+
+            // 判断
+            int n = 0;
+            for (i = 100000; i < 200000; i++)
+            {
+                if (bf.Contains(i))
+                {
+                    n++;
+                    Console.WriteLine($"{i}误判了");
+                }
+            }
+            Console.WriteLine($"总共的误判数:{n}");
 
             t.Stop();
             Console.WriteLine("");
