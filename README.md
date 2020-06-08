@@ -25,6 +25,7 @@ service.docx：这是一篇重要的文档，分两章详细描述了依赖注�
 在你明白了依赖注入和控制反转“的理论依据以后，第二章则介绍了依赖注入在Asp.Net Core中的应用。通过阅读这篇文档希望对你能有所帮助，别动不动就”依赖注入和控制反转“炫技，它并不是那么完美。   
 Session(含Redis).docx：介绍了Asp.Net Core中的各种数据缓存方式，在介绍分布式缓存的时候，着重介绍了Redis数据库的基础重点知识及其应用场景，建议你阅读以后，研读源码。
 UniqueID生成算法.docx：详细阐述唯一ID生成器GuidCombGenerator和SnowflakeGenerator。GuidCombGenerator用于生成字符串UID，SnowflakeGenerator用于生成数值UID。  
+布隆过滤器.docx：阐述布隆过滤器的原理和应用场景。   
 ```
    
 测试样例：   
