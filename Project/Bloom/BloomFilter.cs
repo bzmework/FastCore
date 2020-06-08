@@ -20,6 +20,8 @@ namespace FastCore.Bloom
     /// https://www.jasondavies.com/bloomfilter/
     /// https://github.com/jasondavies/bloomfilter.js
     /// https://hackernoon.com/probabilistic-data-structures-bloom-filter-5374112a7832
+    /// https://github.com/joeyrobert/bloomfilter
+    /// https://github.com/vla/BloomFilter.NetCore
     /// https://www.eecs.harvard.edu/~michaelm/postscripts/tr-02-05.pdf
     /// </remarks>
     public class BloomFilter<T>
